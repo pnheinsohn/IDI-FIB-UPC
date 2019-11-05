@@ -6,6 +6,10 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent), program(NULL) {
   setFocusPolicy(Qt::StrongFocus); // per rebre events de teclat
   scale = 1.0f;
   rot_angle = 0.0f;
+  perspective = true;
+  min_scene = glm::vec3(-2.5, 0.0, -2.5);
+  max_scene = glm::vec3(2.5, 4.0, 2.5);
+  euler = glm::vec3(0.0, 0.0, 0.0);
 }
 
 MyGLWidget::~MyGLWidget() {
@@ -20,6 +24,8 @@ void MyGLWidget::initializeGL() {
   glEnable(GL_DEPTH_TEST);
   carregaShaders();
   creaBuffers();
+  modelBox();
+  centerRadius();
 
   initCamera();
 }
@@ -54,16 +60,19 @@ void MyGLWidget::carregaShaders() {
 }
 
 void MyGLWidget::creaBuffers() {
-  ///////////
-  // HOMER //
-  ///////////
+  // loadHomer();
+  loadPatrick();
+  createTerra();
+  glBindVertexArray(0);
+}
 
+void MyGLWidget::loadHomer() {
   m.load("./models/HomerProves.obj");
 
   glGenVertexArrays(1, &VAO_Homer);
   glBindVertexArray(VAO_Homer);
 
-  glGenBuffers(1, &VBO_Homer[0]);
+  glGenBuffers(2, VBO_Homer);
   glBindBuffer(GL_ARRAY_BUFFER, VBO_Homer[0]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_vertices(), GL_STATIC_DRAW);
 
@@ -71,25 +80,45 @@ void MyGLWidget::creaBuffers() {
   glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(vertexLoc);
 
-  glGenBuffers(1, &VBO_Homer[1]);
   glBindBuffer(GL_ARRAY_BUFFER, VBO_Homer[1]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_matdiff(), GL_STATIC_DRAW);
 
   // Activem l'atribut colorLoc
   glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(colorLoc);
+}
 
-  ///////////
-  // TERRA //
-  ///////////
+void MyGLWidget::loadPatrick() {
+  m.load("./models/Patricio.obj");
 
+  glGenVertexArrays(1, &VAO_Patrick);
+  glBindVertexArray(VAO_Patrick);
+
+  glGenBuffers(2, VBO_Patrick);
+  
+  // Activem l'atribut vertexLoc
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_Patrick[0]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_vertices(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(vertexLoc);
+
+  // Activem l'atribut colorLoc
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_Patrick[1]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m.faces().size() * 3 * 3, m.VBO_matdiff(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(colorLoc);
+}
+
+void MyGLWidget::createTerra() {
   glm::vec3 Vertices[6];
-  Vertices[0] = glm::vec3(-2.0, -1.0, -2.0);
-  Vertices[1] = glm::vec3(2.0, -1.0, -2.0);
-  Vertices[2] = glm::vec3(-2.0, -1.0, 2.0);
-  Vertices[3] = glm::vec3(-2.0, -1.0, 2.0);
-  Vertices[4] = glm::vec3(2.0, -1.0, -2.0);
-  Vertices[5] = glm::vec3(2.0, -1.0, 2.0);
+  Vertices[0] = glm::vec3(-2.5, 0.0, -2.5);
+  Vertices[1] = glm::vec3(2.5, 0.0, -2.5);
+  Vertices[2] = glm::vec3(-2.5, 0.0, 2.5);
+  Vertices[3] = glm::vec3(-2.5, 0.0, 2.5);
+  Vertices[4] = glm::vec3(2.5, 0.0, -2.5);
+  Vertices[5] = glm::vec3(2.5, 0.0, 2.5);
 
   glm::vec3 Colors[6];
   Colors[0] = glm::vec3(1.0, -1.0, 1.0);
@@ -102,7 +131,7 @@ void MyGLWidget::creaBuffers() {
   glGenVertexArrays(1, &VAO_Terra);
   glBindVertexArray(VAO_Terra);
 
-  glGenBuffers(1, &VBO_Terra[0]);
+  glGenBuffers(2, VBO_Terra);
   glBindBuffer(GL_ARRAY_BUFFER, VBO_Terra[0]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
 
@@ -110,40 +139,32 @@ void MyGLWidget::creaBuffers() {
   glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(vertexLoc);
 
-  glGenBuffers(1, &VBO_Terra[1]);
   glBindBuffer(GL_ARRAY_BUFFER, VBO_Terra[1]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(Colors), Colors, GL_STATIC_DRAW);
 
   // Activem l'atribut colorLoc
   glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(colorLoc);
-
-  glBindVertexArray(0);
 }
 
 void MyGLWidget::initCamera() {
-  perspective = false;
-  
-  radioCenter();
-
-  float zDistance = radio * 3;
+  float zDistance = radius * 2;
 
   VRP = center;
   // OBS: for Orthogonal, it might be better change y coord to 1.0
-  OBS = VRP + glm::vec3(0.0, 0.0, zDistance);
+  OBS = VRP + glm::vec3(0.0, 1.0, zDistance);
   UP = glm::vec3(0.0, 0.1, 0.0);
   viewTransform();
 
-  ra = 1.0;
-  zNear = radio;
-  zFar = zDistance + radio;
-  
-  FOV = asin(radio / zDistance);
+  ra = 1.0f;
+  zNear = radius;
+  zFar = zDistance + radius;
+  FOV = asin(radius / zDistance);
 
-  top = radio / 2.0;
-  left = -radio / 2.0;
-  right = radio / 2.0;
-  bottom = -radio / 2.0;
+  top = radius / 2;
+  left = -radius / 2;
+  right = radius / 2;
+  bottom = -radius / 2;
 
   projectTransform();
 }
@@ -164,12 +185,16 @@ void MyGLWidget::paintGL() {
   // Esborrem el frame-buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glBindVertexArray(VAO_Homer);
-  modelTransformHomer();
+  // glBindVertexArray(VAO_Homer);
+  glBindVertexArray(VAO_Patrick);
+
+  viewTransform();
+  projectTransform();
+  modelTransform();
   glDrawArrays(GL_TRIANGLES, 0, m.faces().size() * 3);
 
   glBindVertexArray(VAO_Terra);
-  modelTransformTerra();
+  terraTransform();
   glDrawArrays(GL_TRIANGLES, 0, 6);
 
   glBindVertexArray(0);
@@ -188,26 +213,28 @@ void MyGLWidget::resizeGL(int w, int h) {
   else {
     // if its orthogonal, and ra != 1, then the dimensions must change
     if (ra < 1.0) {
-      top = radio / 2.0 / ra + 1;
-      left = -radio / 2.0 - 1;
-      right = radio / 2.0 + 1;
-      bottom = -radio / 2.0 / ra - 1;
+      top = radius / 2.0 / ra;
+      left = -radius / 2.0;
+      right = radius / 2.0;
+      bottom = -radius / 2.0 / ra;
     }
     else if (ra > 1.0) {
-      top = radio / 2.0 + 1;
-      left = -radio / 2.0 * ra - 1;
-      right = radio / 2.0 * ra + 1;
-      bottom = -radio / 2.0 - 1;
+      top = radius / 2.0;
+      left = -radius / 2.0 * ra;
+      right = radius / 2.0 * ra;
+      bottom = -radius / 2.0;
     }
   }
-
   projectTransform();
 }
 
 void MyGLWidget::keyPressEvent(QKeyEvent *event) {
   makeCurrent();
   switch(event->key()) {
-  case Qt::Key_S: { // escalar a més gran
+  case Qt::Key_O: {
+    perspective = !perspective;
+    break;
+  } case Qt::Key_S: { // escalar a més gran
     scale += 0.05;
     break;
   } case Qt::Key_D: { // escalar a més petit
@@ -216,21 +243,41 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
   } case Qt::Key_R: {
     rot_angle += float(M_PI) / 4;
     break;
+  } case Qt::Key_Z: {
+    FOV -= 0.1;
+    break;
+  } case Qt::Key_X: {
+    FOV += 0.1;
+    break;
   } default:
     event->ignore();
     break;
   }
+  // Calls for paintGL
   update();
 }
 
-void MyGLWidget::modelTransformHomer() {
+void MyGLWidget::mousePressEvent(QMouseEvent *event) {
+  mousePos[0] = event->x();
+  mousePos[1] = event->y();
+}
+
+void MyGLWidget::mouseReleaseEvent(QMouseEvent *event) {
+  if (abs(event->x() - mousePos[0]) > 25) euler.x -= 0.1 * ((event->x() - mousePos[0]) / 50);
+  if (abs(event->y() - mousePos[1]) > 25) euler.y -= 0.1 * ((event->y() - mousePos[1]) / 50);
+  update();
+}
+
+void MyGLWidget::modelTransform() {
   glm::mat4 transform(1.0f);
   transform = glm::scale(transform, glm::vec3(scale));
+  transform = glm::scale(transform, glm::vec3(rescale));
   transform = glm::rotate(transform, rot_angle, glm::vec3(0.0f, 1.0f, 0.0f));
+  transform = glm::translate(transform, -modelCenterBase);
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
 }
 
-void MyGLWidget::modelTransformTerra() {
+void MyGLWidget::terraTransform() {
   glm::mat4 transform(1.0f);
   transform = glm::scale(transform, glm::vec3(scale));
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
@@ -253,28 +300,47 @@ void MyGLWidget::viewTransform() {
   /** Parámetros lookAt 
    * OBS: Posición de la cámara
    * VRP: Orientación de la visión de la cámara (punto central al que apunta)
-   * UP: Sentido del vector que apunta hacia arriba de la cámara */
-  glm::mat4 View = glm::lookAt(OBS, VRP, UP);
+   * UP: Sentido del vector que apunta hacia arriba de la cámara
+  */
+  // glm::mat4 View = glm::lookAt(OBS, VRP, UP);
+  // glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &View[0][0]);
+
+  /** Rotación angulos de euler
+   *  Recordar que los radianes giran positivamente en orientación antihorario
+  */
+  glm::mat4 View(1.0f);
+  // -2 * radius coz zDistance is 2 * radius
+  View = glm::translate(View, glm::vec3(0.0f, 0.0f, - 2 * radius));
+  View = glm::rotate(View, - euler.x, glm::vec3(0.0, 0.0, 1.0));
+  View = glm::rotate(View, euler.y, glm::vec3(1.0, 0.0, 0.0));
+  View = glm::rotate(View, - euler.z, glm::vec3(0.0, 1.0, 0.0));
+  View = glm::translate(View, -VRP);
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
-void MyGLWidget::radioCenter() {
-  float xmin, xmax, ymin, ymax, zmin, zmax;
-  xmin = xmax = m.vertices()[0];
-  ymin = ymax = m.vertices()[0];
-  zmin = zmax = m.vertices()[0];
+void MyGLWidget::modelBox() {
+  glm::vec3 mins, maxs;
+
+  mins.x = maxs.x = m.vertices()[0];
+  mins.y = maxs.y = m.vertices()[1];
+  mins.z = maxs.z = m.vertices()[2];
 
   for (unsigned int i = 3; i < m.vertices().size(); i += 3) {
-    if (m.vertices()[i] < xmin) xmin = m.vertices()[i];
-    if (m.vertices()[i] > xmax) xmax = m.vertices()[i];
-    if (m.vertices()[i + 1] < ymin) ymin = m.vertices()[i + 1];
-    if (m.vertices()[i + 1] > ymax) ymax = m.vertices()[i + 1];
-    if (m.vertices()[i + 2] < zmin) zmin = m.vertices()[i + 2];
-    if (m.vertices()[i + 2] > zmax) zmax = m.vertices()[i + 2];
+    if (m.vertices()[i] < mins.x) mins.x = m.vertices()[i];
+    else if (m.vertices()[i] > maxs.x) maxs.x = m.vertices()[i];
+    
+    if (m.vertices()[i + 1] < mins.y) mins.y = m.vertices()[i + 1];
+    else if (m.vertices()[i + 1] > maxs.y) maxs.y = m.vertices()[i + 1];
+    
+    if (m.vertices()[i + 2] < mins.z) mins.z = m.vertices()[i + 2];
+    else if (m.vertices()[i + 2] > maxs.z) maxs.z = m.vertices()[i + 2];
   }
 
-  radio = sqrt(pow(xmax - xmin, 2) + pow(ymax - ymin, 2) + pow(zmax - zmin, 2)) / 2.0;
-  center[0] = (xmax + xmin) / 2.0;
-  center[1] = (ymax + ymin) / 2.0;
-  center[2] = (zmax + zmin) / 2.0;
+  rescale = 0.25f;
+  modelCenterBase = glm::vec3((mins.x + maxs.x) / 2, mins.y, (mins.z + maxs.z) / 2);
+}
+
+void MyGLWidget::centerRadius() {
+  center = (min_scene + max_scene) / glm::vec3(2.0);
+  radius = distance(min_scene, max_scene) / 2.0;
 }
