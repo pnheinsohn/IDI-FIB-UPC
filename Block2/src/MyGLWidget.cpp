@@ -157,7 +157,7 @@ void MyGLWidget::initCamera() {
   viewTransform();
 
   ra = 1.0f;
-  zNear = radius;
+  zNear = zDistance - radius;
   zFar = zDistance + radius;
   FOV = asin(radius / zDistance);
 
@@ -311,9 +311,9 @@ void MyGLWidget::viewTransform() {
   glm::mat4 View(1.0f);
   // -2 * radius coz zDistance is 2 * radius
   View = glm::translate(View, glm::vec3(0.0f, 0.0f, - 2 * radius));
-  View = glm::rotate(View, - euler.x, glm::vec3(0.0, 0.0, 1.0));
-  View = glm::rotate(View, euler.y, glm::vec3(1.0, 0.0, 0.0));
-  View = glm::rotate(View, - euler.z, glm::vec3(0.0, 1.0, 0.0));
+  View = glm::rotate(View, - euler.z, glm::vec3(0.0, 0.0, 1.0));
+  View = glm::rotate(View, euler.x, glm::vec3(1.0, 0.0, 0.0));
+  View = glm::rotate(View, - euler.y, glm::vec3(0.0, 1.0, 0.0));
   View = glm::translate(View, -VRP);
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &View[0][0]);
 }
