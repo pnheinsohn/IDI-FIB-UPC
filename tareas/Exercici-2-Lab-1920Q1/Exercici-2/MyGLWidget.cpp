@@ -36,16 +36,18 @@ void MyGLWidget::iniEscena ()   // Cal modificar aquest mètode...
 
   centreBaseArbre = glm::vec3(-0.5, -0.35, 0.0);
   posPilota = glm::vec3(10, 0, 10);
+
+  thirdPerson = true;
 }
 
 void MyGLWidget::iniCamera ()   // Cal modificar aquest mètode...
 {
   angleX = 0.0;
-  angleY = float(M_PI) / 6.0f;
-  obs = centreEsc + glm::vec3(0, 2, 2*radiEsc);
-  vrp = centreEsc;
-  up = glm::vec3(0,1,0);
-  fov = float(M_PI) / 3.0f;
+  angleY = float(M_PI / 6.0f);
+  obs = glm::vec3(2.0f, 6.5f, 2.0f);  // For !thirdPerson
+  vrp = centreEsc;  // For thirdPerson
+  up = glm::vec3(0,1,0);  // For !thirdPerson
+  fov = float(M_PI / 3.0f);
   ra = 1.0;
   zn = radiEsc;
   zf = 3*radiEsc;
@@ -98,7 +100,7 @@ void MyGLWidget::resizeGL (int w, int h)   // Cal modificar aquest mètode...
   glViewport(0, 0, w, h);
 
   ra = float(w) / float(h);
-  if (ra < 1.0f) fov = 2.0f * atan(tan(float(M_PI) / 3.0f) / ra);
+  if (ra < 1.0f) fov = 2.0f * atan(tan(float(M_PI / 3.0f)) / ra);
 
   projectTransform();
 }
@@ -142,7 +144,11 @@ void MyGLWidget::projectTransform ()     // Cal modificar aquest mètode...
 {
   glm::mat4 Proj(1.0f);  // Matriu de projecció
   
-  Proj = glm::perspective(fov, ra, zn, zf);
+  if (thirdPerson) {
+    Proj = glm::perspective(fov, ra, zn, zf);
+  } else {
+    Proj = glm::perspective(float(120.0f * M_PI / 180.0f), ra, .01f, distance(glm::vec3(2.0f, 6.5f, 2.0f), glm::vec3(20.0f, 0.0f, 20.0f)));
+  }
 
   glUniformMatrix4fv (projLoc, 1, GL_FALSE, &Proj[0][0]);
 }
@@ -150,10 +156,16 @@ void MyGLWidget::projectTransform ()     // Cal modificar aquest mètode...
 void MyGLWidget::viewTransform()
 {
   glm::mat4 View(1.0f);  // Matriu de posició i orientació
-  View = glm::translate(View, glm::vec3(0.0f, 0.0f, -2 * radiEsc));
-  View = glm::rotate(View, angleX, glm::vec3(1.0f, 0.0f, 0.0f));
-  View = glm::rotate(View, -angleY, glm::vec3(0.0f, 1.0f, 0.0f));
-  View = glm::translate(View, -vrp);
+
+  if (thirdPerson) {
+    View = glm::translate(View, glm::vec3(0.0f, 0.0f, -2 * radiEsc));
+    View = glm::rotate(View, angleX, glm::vec3(1.0f, 0.0f, 0.0f));
+    View = glm::rotate(View, -angleY, glm::vec3(0.0f, 1.0f, 0.0f));
+    View = glm::translate(View, -vrp);
+  } else {
+    View = glm::lookAt(obs, posPilota, up);
+  }
+
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
@@ -163,22 +175,28 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)  // Cal modificar aquest mètod
   switch (event->key()) {
     case Qt::Key_Left: { 
 	    posPilota[0] -= 0.5;
+      viewTransform();
       break;
     }
     case Qt::Key_Right: { 
 	    posPilota[0] += 0.5;
+      viewTransform();
       break;
     }
     case Qt::Key_Up: { 
 	    posPilota[2] -= 0.5;
+      viewTransform();
       break;
     }
     case Qt::Key_Down: { 
 	    posPilota[2] += 0.5;
+      viewTransform();
       break;
     }
     case Qt::Key_C: { 
-	    // Canvi de càmera...
+	    thirdPerson = !thirdPerson;
+      viewTransform();
+      projectTransform();
       break;
     }
     default: event->ignore(); break;

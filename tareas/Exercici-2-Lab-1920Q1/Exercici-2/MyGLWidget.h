@@ -66,6 +66,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     glm::vec3 centreBaseArbre, centreBasePil, posPilota, centreBase;
     float escalaPil, escalaArbre, escala;
 
+    bool thirdPerson;
     glm::vec3 centreEsc, obs, vrp, up;
     float radiEsc, ra, fov, zn, zf;
 
