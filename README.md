@@ -4,7 +4,7 @@
 Q1: 2019 - 2020
 
 ## Objetivo
-Compartir los 3 bloques de los ejercicios de laboratorio
+Compartir las tareas y ejercicios de laboratorio
 
 ## Alumno
 Paul Heinsohn, pnheinsohn@uc.cl
