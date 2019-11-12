@@ -79,9 +79,11 @@ void MyGLWidget::paintGL() {
   // Esborrem el frame-buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glBindVertexArray(VAO_Patrick);
-  modelTransformPatrick();
-  glDrawArrays(GL_TRIANGLES, 0, patrick.faces().size() * 3);
+  for (int i = 0; i < 3; i++) {
+    glBindVertexArray(VAO_Patrick[i]);
+    modelTransformPatrick(i);
+    glDrawArrays(GL_TRIANGLES, 0, patrick.faces().size() * 3);
+  }
 
   // glBindVertexArray(VAO_Homer);
   // modelTransformHomer();
@@ -131,11 +133,23 @@ void MyGLWidget::modelTransformHomer() {
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &TG[0][0]);
 }
 
-void MyGLWidget::modelTransformPatrick() {
+void MyGLWidget::modelTransformPatrick(int patrickId) {
   glm::mat4 TG(1.0f);
+
   TG = glm::scale(TG, glm::vec3(scaleEsc));
-  TG = glm::scale(TG, glm::vec3(scalePatrick));
+
+  if (patrickId == 0) {
+    TG = glm::translate(TG, glm::vec3(-2.0f, 0.0f, -2.0f));
+    TG = glm::rotate(TG, float(M_PI), glm::vec3(0.0f, 1.0f, 0.0f));
+  }
+  else if (patrickId == 1) {
+    TG = glm::rotate(TG, float(M_PI / 2.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+  } else {
+    TG = glm::translate(TG, glm::vec3(2.0f, 0.0f, 2.0f));
+  }
+
   TG = glm::rotate(TG, rotAnglePatrick, glm::vec3(0.0f, 1.0f, 0.0f));
+  TG = glm::scale(TG, glm::vec3(scalePatrick));
   TG = glm::translate(TG, -centerBasePatrick);
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &TG[0][0]);
 }
@@ -186,19 +200,29 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
     projectTransform();
     break;
   } case Qt::Key_S: { // escalar a més gran
-    scaleEsc += 0.05;
+    scaleEsc += 0.05f;
     break;
   } case Qt::Key_D: { // escalar a més petit
-    scaleEsc -= 0.05;
+    scaleEsc -= 0.05f;
     break;
   } case Qt::Key_R: {
     rotAnglePatrick += float(M_PI) / 4;
     break;
   } case Qt::Key_Z: {
-    fov -= 0.1;
+    fov -= 0.1f;
+    top -= 0.2f;
+    left += 0.2f;
+    right -= 0.2f;
+    bottom += 0.2f;
+    projectTransform();
     break;
   } case Qt::Key_X: {
-    fov += 0.1;
+    fov += 0.1f;
+    top += 0.2f;
+    left -= 0.2f;
+    right += 0.2f;
+    bottom -= 0.2f;
+    projectTransform();
     break;
   } default:
     event->ignore();
@@ -328,27 +352,29 @@ void MyGLWidget::creaBuffersHomer() {
 
 void MyGLWidget::creaBuffersPatrick() {
   patrick.load("./models/Patricio.obj");
-
   getModelBox(patrick, scalePatrick, centerBasePatrick);
-
-  glGenVertexArrays(1, &VAO_Patrick);
-  glBindVertexArray(VAO_Patrick);
+  glGenVertexArrays(3, VAO_Patrick);
 
   GLuint VBO_Patrick[2];
-  glGenBuffers(2, VBO_Patrick);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO_Patrick[0]);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * patrick.faces().size() * 3 * 3, patrick.VBO_vertices(), GL_STATIC_DRAW);
+  
+  for (int i = 0; i < 3; i++) {
+    glBindVertexArray(VAO_Patrick[i]);
 
-  // Activem l'atribut vertexLoc
-  glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-  glEnableVertexAttribArray(vertexLoc);
+    glGenBuffers(2, VBO_Patrick);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Patrick[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * patrick.faces().size() * 3 * 3, patrick.VBO_vertices(), GL_STATIC_DRAW);
 
-  glBindBuffer(GL_ARRAY_BUFFER, VBO_Patrick[1]);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * patrick.faces().size() * 3 * 3, patrick.VBO_matdiff(), GL_STATIC_DRAW);
+    // Activem l'atribut vertexLoc
+    glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(vertexLoc);
 
-  // Activem l'atribut colorLoc
-  glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-  glEnableVertexAttribArray(colorLoc);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Patrick[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * patrick.faces().size() * 3 * 3, patrick.VBO_matdiff(), GL_STATIC_DRAW);
+
+    // Activem l'atribut colorLoc
+    glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(colorLoc);
+  }
 
   glBindVertexArray(0);
 }

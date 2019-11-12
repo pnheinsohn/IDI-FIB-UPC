@@ -43,7 +43,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     // Método para configurar la vista (posición)
     void viewTransform();
     void modelTransformHomer();
-    void modelTransformPatrick();
+    void modelTransformPatrick(int patrickId);
     void modelTransformTerra();
     
     // Gets the center base of patrick and rescales it
@@ -55,7 +55,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     // Program
     QOpenGLShaderProgram *program;
     // VAO names
-    GLuint VAO_Homer, VAO_Patrick, VAO_Terra;
+    GLuint VAO_Homer, VAO_Patrick[3], VAO_Terra;
     // uniform locations
     GLuint transLoc, projLoc, viewLoc;
     // attribute locations
@@ -63,7 +63,6 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 
     // Model
     Model homer, patrick;
-    Model vectorModels[3];
     
     // Radius & center
     glm::vec3 centerBaseHomer, centerBasePatrick;
