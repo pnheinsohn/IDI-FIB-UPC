@@ -36,21 +36,21 @@ void MyGLWidget::iniEscena ()   // Cal modificar aquest mètode...
 
   centreBaseArbre = glm::vec3(-0.5, -0.35, 0.0);
   posPilota = glm::vec3(10, 0, 10);
-
-  thirdPerson = true;
 }
 
 void MyGLWidget::iniCamera()
 {
+  thirdPerson = true;
   angleX = 0.0;
   angleY = float(M_PI / 6.0f);
   obs = glm::vec3(2.0f, 6.5f, 2.0f);  // For !thirdPerson
   vrp = centreEsc;  // For thirdPerson
   up = glm::vec3(0,1,0);  // For !thirdPerson
-  fov = float(M_PI / 3.0f);
+  
   ra = 1.0;
   zn = radiEsc;
-  zf = 3*radiEsc;
+  zf = 3 * radiEsc;
+  fov = float(M_PI / 3.0f);
 
   projectTransform();
   viewTransform();
@@ -135,7 +135,7 @@ void MyGLWidget::modelTransformPatricio ()
   glm::mat4 TG(1.0f);
   TG = glm::translate(TG, glm::vec3(2.0f, 0.0f, 2.0f));
   TG = glm::rotate(TG, float(M_PI) / 4.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-  TG = glm::scale(TG, glm::vec3(1.0f, 6 * escala, 1.0f));
+  TG = glm::scale(TG, glm::vec3(1.0f, 6 * scalePatrick, 1.0f));
   TG = glm::translate(TG, -centreBase);
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &TG[0][0]);
 }
@@ -143,7 +143,7 @@ void MyGLWidget::modelTransformPatricio ()
 void MyGLWidget::projectTransform()
 {
   glm::mat4 Proj(1.0f);  // Matriu de projecció
-  
+
   if (thirdPerson) Proj = glm::perspective(fov, ra, zn, zf);
   else Proj = glm::perspective(float(120.0f * M_PI / 180.0f), ra, 0.1f, distance(glm::vec3(2.0f, 6.5f, 2.0f), glm::vec3(20.0f, 0.0f, 20.0f)));
 
@@ -214,7 +214,7 @@ void MyGLWidget::mousePressEvent (QMouseEvent *e)
   }
 }
 
-void MyGLWidget::mouseReleaseEvent( QMouseEvent *)
+void MyGLWidget::mouseReleaseEvent(QMouseEvent *)
 {
   DoingInteractive = NONE;
 }
@@ -396,7 +396,7 @@ void MyGLWidget::creaBuffersPatricio ()
 {
   patricio.load("./models/Patricio.obj");
 
-  calculaCapsaModel(patricio, escala, centreBase);
+  calculaCapsaModel(patricio, scalePatrick, centreBase);
 
   glGenVertexArrays(1, &VAO_Patricio);
   glBindVertexArray(VAO_Patricio);

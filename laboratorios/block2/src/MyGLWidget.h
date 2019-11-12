@@ -30,72 +30,63 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     // mousePressEvent - Es cridat quan es prem una click
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
 
   private:
     void creaBuffers();
+    void creaBuffersTerra();
+    void creaBuffersHomer();  // Solo homer o patricio al mismo tiempo
+    void creaBuffersPatrick();
     void carregaShaders();
-    
-    // Only one must be loaded at the time
-    void loadHomer();
-    void loadPatrick();
-    // This transform is for homer and patrick
-    void modelTransform();
-
-    // Loaded with homer or patrick
-    void createTerra();
-    // This transform is for terra
-    void terraTransform();
-    
     // Método para configurar la proyección (óptica)
     void projectTransform();
     // Método para configurar la vista (posición)
     void viewTransform();
+    void modelTransformHomer();
+    void modelTransformPatrick();
+    void modelTransformTerra();
+    
     // Gets the center base of patrick and rescales it
-    void modelBox();
-    // Gets the center & radius of the scene and sets the center of the camera
-    void centerRadius();
+    void getModelBox(Model &m, float &scale, glm::vec3 &centerBase);
     // Initializes camera params
+    void initEscena();
     void initCamera();
 
-    // Model
-    Model m;
-    Model vectorModels[3];
-    
-    // attribute locations
-    GLuint vertexLoc, colorLoc;
-    
-    // uniform locations
-    GLuint transLoc, projLoc, viewLoc;
-    
-    // VAO i VBO names
-    GLuint VAO_Homer, VBO_Homer[2];
-    GLuint VAO_Patrick, VBO_Patrick[2];
-    GLuint VAO_Terra, VBO_Terra[2];
-    
     // Program
     QOpenGLShaderProgram *program;
+    // VAO names
+    GLuint VAO_Homer, VAO_Patrick, VAO_Terra;
+    // uniform locations
+    GLuint transLoc, projLoc, viewLoc;
+    // attribute locations
+    GLuint vertexLoc, colorLoc;
+
+    // Model
+    Model homer, patrick;
+    Model vectorModels[3];
+    
+    // Radius & center
+    glm::vec3 centerBaseHomer, centerBasePatrick;
+    float homerRadius, patrickRadius, terraRadius;
     
     // Internal vars
-    float scale, rescale;
     glm::vec3 pos;
-    GLfloat rot_angle;
-    
-    // Scene params
-    glm::vec3 min_scene, max_scene;
+    float scaleEsc, scaleHomer, scalePatrick;
+    GLfloat rotAngleHomer, rotAnglePatrick;
 
-    // Project transform parameters
+    // Camera and Scene Params
     bool perspective;
-    float FOV, ra, zNear, zFar, d;  // Perspective
-    float left, right, bottom, top;  // Ortogonal
-    // View transform parameters
-    glm::vec3 OBS, VRP, UP;
+    glm::vec3 min_scene, max_scene;
+    glm::vec3 centerEsc, obs, vrp, up;
+    float radiusEsc, ra, fov, zn, zf;  // Radius + perspective
 
-    // Radius & center
-    glm::vec3 center, modelCenterBase;
-    float radius, modelRadius, terraRadius;
+    float left, right, bottom, top;  // Ortogonal
 
     // Euler's & Mouse
-    GLint mousePos[2];
     glm::vec3 euler;
+
+    typedef enum {NONE, ROTATE} InteractiveAction;
+    InteractiveAction DoingInteractive;
+    int xClick, yClick;
 };
 

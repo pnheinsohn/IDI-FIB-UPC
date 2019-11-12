@@ -64,7 +64,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     Model pil, patricio;
     // paràmetres calculats a partir de la capsa contenidora del model
     glm::vec3 centreBaseArbre, centreBasePil, posPilota, centreBase;
-    float escalaPil, escalaArbre, escala;
+    float escalaPil, escalaArbre, scalePatrick;
 
     bool thirdPerson;
     glm::vec3 centreEsc, obs, vrp, up;
