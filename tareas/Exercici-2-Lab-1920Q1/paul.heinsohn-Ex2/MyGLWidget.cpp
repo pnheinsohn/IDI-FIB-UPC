@@ -40,7 +40,7 @@ void MyGLWidget::iniEscena ()   // Cal modificar aquest mètode...
   thirdPerson = true;
 }
 
-void MyGLWidget::iniCamera ()   // Cal modificar aquest mètode...
+void MyGLWidget::iniCamera()
 {
   angleX = 0.0;
   angleY = float(M_PI / 6.0f);
@@ -56,7 +56,7 @@ void MyGLWidget::iniCamera ()   // Cal modificar aquest mètode...
   viewTransform();
 }
 
-void MyGLWidget::paintGL ()   // Cal modificar aquest mètode...
+void MyGLWidget::paintGL()
 {
   // Aquest codi és necessari únicament per a MACs amb pantalla retina.
   #ifdef __APPLE__
@@ -95,7 +95,7 @@ void MyGLWidget::paintGL ()   // Cal modificar aquest mètode...
   glBindVertexArray(0);
 }
 
-void MyGLWidget::resizeGL (int w, int h)   // Cal modificar aquest mètode...
+void MyGLWidget::resizeGL(int w, int h)
 {
   glViewport(0, 0, w, h);
 
@@ -140,15 +140,12 @@ void MyGLWidget::modelTransformPatricio ()
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &TG[0][0]);
 }
 
-void MyGLWidget::projectTransform ()     // Cal modificar aquest mètode...
+void MyGLWidget::projectTransform()
 {
   glm::mat4 Proj(1.0f);  // Matriu de projecció
   
-  if (thirdPerson) {
-    Proj = glm::perspective(fov, ra, zn, zf);
-  } else {
-    Proj = glm::perspective(float(120.0f * M_PI / 180.0f), ra, .01f, distance(glm::vec3(2.0f, 6.5f, 2.0f), glm::vec3(20.0f, 0.0f, 20.0f)));
-  }
+  if (thirdPerson) Proj = glm::perspective(fov, ra, zn, zf);
+  else Proj = glm::perspective(float(120.0f * M_PI / 180.0f), ra, 0.1f, distance(glm::vec3(2.0f, 6.5f, 2.0f), glm::vec3(20.0f, 0.0f, 20.0f)));
 
   glUniformMatrix4fv (projLoc, 1, GL_FALSE, &Proj[0][0]);
 }
@@ -169,7 +166,7 @@ void MyGLWidget::viewTransform()
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
-void MyGLWidget::keyPressEvent(QKeyEvent* event)  // Cal modificar aquest mètode...
+void MyGLWidget::keyPressEvent(QKeyEvent* event)
 {
   makeCurrent();
   switch (event->key()) {
