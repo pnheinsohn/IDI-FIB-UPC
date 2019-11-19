@@ -26,6 +26,7 @@ void MyGLWidget::initEscena() {
   
   creaBuffersTerra();
   creaBuffersPatrick();
+  creaBuffersLegoman();
   // creaBuffersHomer();
   
   min_scene = glm::vec3(-2.5f, 0.0f, -2.5f);
@@ -34,12 +35,18 @@ void MyGLWidget::initEscena() {
   radiusEsc = distance(min_scene, max_scene) / 2.0f;
 
   scaleEsc = 1.0f;
+  emit sendScale(double(scaleEsc));
 
   scaleHomer = 1.0f;
   rotAngleHomer = 0.0f;
   
   scalePatrick = 0.25;
   rotAnglePatrick = 0.0f;
+
+  scaleLegoman = 0.003;
+  rotAngleLegoman = 0.0f;
+
+  showPatricks = true;
 }
 
 void MyGLWidget::initCamera() {
@@ -59,7 +66,7 @@ void MyGLWidget::initCamera() {
   right = radiusEsc;
   bottom = -radiusEsc;
 
-  emit sendFOV(int(180 * fov / float(M_PI)));
+  // emit sendFOV(int(180 * fov / float(M_PI)));  // resizeGL wins bc it comes after this
 
   projectTransform();
   viewTransform();
@@ -81,10 +88,16 @@ void MyGLWidget::paintGL() {
   // Esborrem el frame-buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  for (int i = 0; i < 3; i++) {
-    glBindVertexArray(VAO_Patrick[i]);
-    modelTransformPatrick(i);
-    glDrawArrays(GL_TRIANGLES, 0, patrick.faces().size() * 3);
+  if (showPatricks) {
+    for (int i = 0; i < 3; i++) {
+      glBindVertexArray(VAO_Patrick[i]);
+      modelTransformPatrick(i);
+      glDrawArrays(GL_TRIANGLES, 0, patrick.faces().size() * 3);
+    }
+  } else {
+    glBindVertexArray(VAO_Legoman);
+    modelTransformLegoman();
+    glDrawArrays(GL_TRIANGLES, 0, legoman.faces().size() * 3);
   }
 
   // glBindVertexArray(VAO_Homer);
@@ -158,6 +171,15 @@ void MyGLWidget::modelTransformPatrick(int patrickId) {
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &TG[0][0]);
 }
 
+void MyGLWidget::modelTransformLegoman() {
+  glm::mat4 TG(1.0f);
+  TG = glm::scale(TG, glm::vec3(scaleEsc));
+  TG = glm::scale(TG, glm::vec3(scaleLegoman));
+  TG = glm::rotate(TG, rotAngleLegoman, glm::vec3(0.0f, 1.0f, 0.0f));
+  TG = glm::translate(TG, -centerBaseLegoman);
+  glUniformMatrix4fv(transLoc, 1, GL_FALSE, &TG[0][0]);
+}
+
 void MyGLWidget::projectTransform() {
   /** Parámetros perspective
    * fov: Ángulo de abertura de la cámara (en radianes siempre)
@@ -195,10 +217,30 @@ void MyGLWidget::viewTransform() {
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
+void MyGLWidget::changeModel() {
+  makeCurrent();
+  showPatricks = !showPatricks;
+  update();
+}
+
+void MyGLWidget::changeCamera() {
+  makeCurrent();
+  perspective = !perspective;
+  viewTransform();
+  projectTransform();
+  update();
+}
+
 void MyGLWidget::setFOV(int value) {
   makeCurrent();
   fov = float(value * M_PI / 180.0f);
   projectTransform();
+  update();
+}
+
+void MyGLWidget::setScale(double value) {
+  makeCurrent();
+  scaleEsc = float(value);
   update();
 }
 
@@ -209,16 +251,26 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
     perspective = !perspective;
     viewTransform();
     projectTransform();
+    emit toggleChangeCamera();
     break;
+
   } case Qt::Key_S: { // escalar a més gran
     scaleEsc += 0.05f;
+    if (scaleEsc > 1.1f) scaleEsc = 1.1f;
+    emit sendScale(double(scaleEsc));
     break;
+
   } case Qt::Key_D: { // escalar a més petit
     scaleEsc -= 0.05f;
+    if (scaleEsc < 0.0f) scaleEsc = 0.0f;
+    emit sendScale(double(scaleEsc));
     break;
+
   } case Qt::Key_R: {
     rotAnglePatrick += float(M_PI) / 4;
+    rotAngleLegoman += float(M_PI) / 4;
     break;
+
   } case Qt::Key_Z: {
     top -= 0.2f;
     left += 0.2f;
@@ -231,6 +283,7 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
     
     projectTransform();
     break;
+
   } case Qt::Key_X: {
     top += 0.2f;
     left -= 0.2f;
@@ -243,6 +296,7 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
 
     projectTransform();
     break;
+
   } default:
     event->ignore();
     break;
@@ -394,6 +448,33 @@ void MyGLWidget::creaBuffersPatrick() {
     glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(colorLoc);
   }
+
+  glBindVertexArray(0);
+}
+
+void MyGLWidget::creaBuffersLegoman() {
+  legoman.load("./models/legoman.obj");
+  getModelBox(legoman, scaleLegoman, centerBaseLegoman);
+  glGenVertexArrays(1, &VAO_Legoman);
+
+  GLuint VBO_Legoman[2];
+  
+  glBindVertexArray(VAO_Legoman);
+
+  glGenBuffers(2, VBO_Legoman);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[0]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * legoman.faces().size() * 3 * 3, legoman.VBO_vertices(), GL_STATIC_DRAW);
+
+  // Activem l'atribut vertexLoc
+  glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(vertexLoc);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_Legoman[1]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * legoman.faces().size() * 3 * 3, legoman.VBO_matdiff(), GL_STATIC_DRAW);
+
+  // Activem l'atribut colorLoc
+  glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(colorLoc);
 
   glBindVertexArray(0);
 }

@@ -19,9 +19,14 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 
   signals:
     void sendFOV(int value);
+    void sendScale(double value);
+    void toggleChangeCamera();
 
   public slots:
+    void changeModel();
+    void changeCamera();
     void setFOV(int value);
+    void setScale(double value);
 
   protected:
     // initializeGL - Aqui incluim les inicialitzacions del contexte grafic.
@@ -43,6 +48,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     void creaBuffersTerra();
     void creaBuffersHomer();  // Solo homer o patricio al mismo tiempo
     void creaBuffersPatrick();
+    void creaBuffersLegoman();
     void carregaShaders();
     // Método para configurar la proyección (óptica)
     void projectTransform();
@@ -50,6 +56,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     void viewTransform();
     void modelTransformHomer();
     void modelTransformPatrick(int patrickId);
+    void modelTransformLegoman();
     void modelTransformTerra();
     
     // Gets the center base of patrick and rescales it
@@ -61,23 +68,23 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     // Program
     QOpenGLShaderProgram *program;
     // VAO names
-    GLuint VAO_Homer, VAO_Patrick[3], VAO_Terra;
+    GLuint VAO_Homer, VAO_Patrick[3], VAO_Legoman, VAO_Terra;
     // uniform locations
     GLuint transLoc, projLoc, viewLoc;
     // attribute locations
     GLuint vertexLoc, colorLoc;
 
     // Model
-    Model homer, patrick;
+    bool showPatricks;
+    Model homer, patrick, legoman;
     
     // Radius & center
-    glm::vec3 centerBaseHomer, centerBasePatrick;
-    float homerRadius, patrickRadius, terraRadius;
+    glm::vec3 centerBaseHomer, centerBasePatrick, centerBaseLegoman;
     
     // Internal vars
     glm::vec3 pos;
-    float scaleEsc, scaleHomer, scalePatrick;
-    GLfloat rotAngleHomer, rotAnglePatrick;
+    float scaleEsc, scaleHomer, scalePatrick, scaleLegoman;
+    GLfloat rotAngleHomer, rotAnglePatrick, rotAngleLegoman;
 
     // Camera and Scene Params
     bool perspective;

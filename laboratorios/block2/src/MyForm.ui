@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>819</width>
-    <height>726</height>
+    <width>1500</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,6 +42,13 @@
         </spacer>
        </item>
        <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>FOV:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QSpinBox" name="fovSpinBox">
          <property name="maximumSize">
           <size>
@@ -70,6 +77,88 @@
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox">
+         <property name="text">
+          <string>Show Legoman And Hide Patricks</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox_2">
+         <property name="text">
+          <string>Change Perspective To Orthogonal</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Scale:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="doubleSpinBox">
+         <property name="maximum">
+          <double>1.100000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.050000000000000</double>
          </property>
         </widget>
        </item>
@@ -142,7 +231,12 @@
    <container>1</container>
    <slots>
     <signal>sendFOV(int)</signal>
+    <signal>toggleChangeCamera()</signal>
+    <signal>sendScale(double)</signal>
     <slot>setFOV(int)</slot>
+    <slot>changeModel()</slot>
+    <slot>changeCamera()</slot>
+    <slot>setScale(double)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -155,8 +249,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>803</x>
-     <y>714</y>
+     <x>1488</x>
+     <y>688</y>
     </hint>
     <hint type="destinationlabel">
      <x>839</x>
@@ -171,12 +265,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>613</x>
-     <y>28</y>
+     <x>1282</x>
+     <y>33</y>
     </hint>
     <hint type="destinationlabel">
-     <x>670</x>
-     <y>28</y>
+     <x>1488</x>
+     <y>29</y>
     </hint>
    </hints>
   </connection>
@@ -187,12 +281,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>740</x>
-     <y>25</y>
+     <x>1488</x>
+     <y>29</y>
     </hint>
     <hint type="destinationlabel">
-     <x>609</x>
-     <y>15</y>
+     <x>1282</x>
+     <y>33</y>
     </hint>
    </hints>
   </connection>
@@ -203,7 +297,7 @@
    <slot>setFOV(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>756</x>
+     <x>1488</x>
      <y>29</y>
     </hint>
     <hint type="destinationlabel">
@@ -219,8 +313,8 @@
    <slot>setFOV(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>28</y>
+     <x>1282</x>
+     <y>33</y>
     </hint>
     <hint type="destinationlabel">
      <x>299</x>
@@ -239,8 +333,8 @@
      <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>584</x>
-     <y>27</y>
+     <x>1282</x>
+     <y>33</y>
     </hint>
    </hints>
   </connection>
@@ -255,8 +349,88 @@
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>708</x>
-     <y>28</y>
+     <x>1488</x>
+     <y>29</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>clicked()</signal>
+   <receiver>widget</receiver>
+   <slot>changeModel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1488</x>
+     <y>61</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>520</x>
+     <y>51</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_2</sender>
+   <signal>clicked()</signal>
+   <receiver>widget</receiver>
+   <slot>changeCamera()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1488</x>
+     <y>89</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>514</x>
+     <y>81</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widget</sender>
+   <signal>toggleChangeCamera()</signal>
+   <receiver>checkBox_2</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>425</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1488</x>
+     <y>89</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>widget</receiver>
+   <slot>setScale(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1443</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>704</x>
+     <y>109</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widget</sender>
+   <signal>sendScale(double)</signal>
+   <receiver>doubleSpinBox</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>737</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1474</x>
+     <y>115</y>
     </hint>
    </hints>
   </connection>
