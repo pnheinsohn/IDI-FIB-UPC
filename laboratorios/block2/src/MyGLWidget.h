@@ -21,12 +21,16 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     void sendFOV(int value);
     void sendScale(double value);
     void toggleChangeCamera();
+    void sendEulerPsiAngle(int value);
+    void sendEulerThetaAngle(int value);
 
   public slots:
     void changeModel();
     void changeCamera();
     void setFOV(int value);
     void setScale(double value);
+    void setEulerPsiAngle(int value);
+    void setEulerThetaAngle(int value);
 
   protected:
     // initializeGL - Aqui incluim les inicialitzacions del contexte grafic.

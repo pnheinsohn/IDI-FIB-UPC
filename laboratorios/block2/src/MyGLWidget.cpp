@@ -244,6 +244,20 @@ void MyGLWidget::setScale(double value) {
   update();
 }
 
+void MyGLWidget::setEulerPsiAngle(int value) {
+  makeCurrent();
+  euler.x = float(value * M_PI / 180.0f);
+  viewTransform();
+  update();
+}
+
+void MyGLWidget::setEulerThetaAngle(int value) {
+  makeCurrent();
+  euler.y = float(value * M_PI / 180.0f);
+  viewTransform();
+  update();
+}
+
 void MyGLWidget::keyPressEvent(QKeyEvent *event) {
   makeCurrent();
   switch(event->key()) {
@@ -326,6 +340,8 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *event) {
     euler.x += 0.1 * (event->y() - yClick) / 25;
     euler.y -= 0.1 * (event->x() - xClick) / 25;
     viewTransform();
+    emit sendEulerPsiAngle(int(180 * euler.x / float(M_PI)));
+    emit sendEulerThetaAngle(int(180 * euler.y / float(M_PI)));
   }
   
   xClick = event->x();
