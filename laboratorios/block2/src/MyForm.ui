@@ -27,6 +27,55 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="fovSpinBox">
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="maximum">
+          <number>179</number>
+         </property>
+         <property name="singleStep">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="fovHorizontalSlider">
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="maximum">
+          <number>179</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -40,17 +89,46 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>&amp;Sortir</string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>&amp;Sortir</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -62,6 +140,10 @@
    <extends>QWidget</extends>
    <header>MyGLWidget.h</header>
    <container>1</container>
+   <slots>
+    <signal>sendFOV(int)</signal>
+    <slot>setFOV(int)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -73,8 +155,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>796</x>
-     <y>596</y>
+     <x>803</x>
+     <y>714</y>
     </hint>
     <hint type="destinationlabel">
      <x>839</x>
@@ -82,5 +164,104 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>fovSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>fovHorizontalSlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>613</x>
+     <y>28</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>670</x>
+     <y>28</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fovHorizontalSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>fovSpinBox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>740</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>609</x>
+     <y>15</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fovHorizontalSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widget</receiver>
+   <slot>setFOV(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>756</x>
+     <y>29</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fovSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widget</receiver>
+   <slot>setFOV(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>28</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widget</sender>
+   <signal>sendFOV(int)</signal>
+   <receiver>fovSpinBox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>352</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>584</x>
+     <y>27</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widget</sender>
+   <signal>sendFOV(int)</signal>
+   <receiver>fovHorizontalSlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>372</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>708</x>
+     <y>28</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>setFOV(int)</slot>
+ </slots>
 </ui>

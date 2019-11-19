@@ -59,6 +59,8 @@ void MyGLWidget::initCamera() {
   right = radiusEsc;
   bottom = -radiusEsc;
 
+  emit sendFOV(int(180 * fov / float(M_PI)));
+
   projectTransform();
   viewTransform();
 }
@@ -114,6 +116,8 @@ void MyGLWidget::resizeGL(int w, int h) {
     right = radiusEsc * ra;
     bottom = -radiusEsc;
   }
+
+  emit sendFOV(int(180 * fov / float(M_PI)));
 
   projectTransform();
 }
@@ -191,6 +195,13 @@ void MyGLWidget::viewTransform() {
   glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
+void MyGLWidget::setFOV(int value) {
+  makeCurrent();
+  fov = float(value * M_PI / 180.0f);
+  projectTransform();
+  update();
+}
+
 void MyGLWidget::keyPressEvent(QKeyEvent *event) {
   makeCurrent();
   switch(event->key()) {
@@ -209,19 +220,27 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
     rotAnglePatrick += float(M_PI) / 4;
     break;
   } case Qt::Key_Z: {
-    fov -= 0.1f;
     top -= 0.2f;
     left += 0.2f;
     right -= 0.2f;
     bottom += 0.2f;
+
+    fov -= 0.1f;
+    if (fov < 0.0f) fov = 0.0f;
+    emit sendFOV(int(180 * fov / float(M_PI)));
+    
     projectTransform();
     break;
   } case Qt::Key_X: {
-    fov += 0.1f;
     top += 0.2f;
     left -= 0.2f;
     right += 0.2f;
     bottom -= 0.2f;
+
+    fov += 0.1f;
+    if (fov > float(M_PI)) fov = float(M_PI);
+    emit sendFOV(int(180 * fov / float(M_PI)));
+
     projectTransform();
     break;
   } default:

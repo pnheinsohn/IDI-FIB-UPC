@@ -14,8 +14,14 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
   Q_OBJECT
 
   public:
-    MyGLWidget (QWidget *parent=0);
-    ~MyGLWidget ();
+    MyGLWidget(QWidget *parent=0);
+    ~MyGLWidget();
+
+  signals:
+    void sendFOV(int value);
+
+  public slots:
+    void setFOV(int value);
 
   protected:
     // initializeGL - Aqui incluim les inicialitzacions del contexte grafic.
