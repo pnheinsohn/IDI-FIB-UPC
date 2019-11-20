@@ -23,6 +23,9 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     void toggleChangeCamera();
     void sendEulerPsiAngle(int value);
     void sendEulerThetaAngle(int value);
+    void sendRedTerraColorValue(int value);
+    void sendGreenTerraColorValue(int value);
+    void sendBlueTerraColorValue(int value);
 
   public slots:
     void changeModel();
@@ -31,6 +34,9 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     void setScale(double value);
     void setEulerPsiAngle(int value);
     void setEulerThetaAngle(int value);
+    void setRedTerraColorValue(int value);
+    void setGreenTerraColorValue(int value);
+    void setBlueTerraColorValue(int value);
 
   protected:
     // initializeGL - Aqui incluim les inicialitzacions del contexte grafic.
@@ -81,6 +87,9 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     // Model
     bool showPatricks;
     Model homer, patrick, legoman;
+
+    // Terra Colors
+    float redTerraColorValue, greenTerraColorValue, blueTerraColorValue;
     
     // Radius & center
     glm::vec3 centerBaseHomer, centerBasePatrick, centerBaseLegoman;

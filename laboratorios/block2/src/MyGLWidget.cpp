@@ -24,6 +24,13 @@ void MyGLWidget::initializeGL() {
 
 void MyGLWidget::initEscena() {
   
+  redTerraColorValue = 1.0f;
+  greenTerraColorValue = 0.0f;
+  blueTerraColorValue = 1.0f;
+  emit sendRedTerraColorValue(int(redTerraColorValue * 255));
+  emit sendGreenTerraColorValue(int(greenTerraColorValue * 255));
+  emit sendBlueTerraColorValue(int(blueTerraColorValue * 255));
+
   creaBuffersTerra();
   creaBuffersPatrick();
   creaBuffersLegoman();
@@ -258,14 +265,36 @@ void MyGLWidget::setEulerThetaAngle(int value) {
   update();
 }
 
+void MyGLWidget::setRedTerraColorValue(int value){
+  makeCurrent();
+  redTerraColorValue = float(value) / 255.0f;
+  creaBuffersTerra();
+  update();
+}
+
+void MyGLWidget::setGreenTerraColorValue(int value){
+  makeCurrent();
+  greenTerraColorValue = float(value) / 255.0f;
+  creaBuffersTerra();
+  update();
+}
+
+void MyGLWidget::setBlueTerraColorValue(int value){
+  makeCurrent();
+  blueTerraColorValue = float(value) / 255.0f;
+  creaBuffersTerra();
+  update();
+}
+
 void MyGLWidget::keyPressEvent(QKeyEvent *event) {
   makeCurrent();
   switch(event->key()) {
   case Qt::Key_O: {
     perspective = !perspective;
+    emit toggleChangeCamera();
+
     viewTransform();
     projectTransform();
-    emit toggleChangeCamera();
     break;
 
   } case Qt::Key_S: { // escalar a més gran
@@ -339,9 +368,9 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *event) {
   if (DoingInteractive == ROTATE) {
     euler.x += 0.1 * (event->y() - yClick) / 25;
     euler.y -= 0.1 * (event->x() - xClick) / 25;
-    viewTransform();
     emit sendEulerPsiAngle(int(180 * euler.x / float(M_PI)));
     emit sendEulerThetaAngle(int(180 * euler.y / float(M_PI)));
+    viewTransform();
   }
   
   xClick = event->x();
@@ -383,12 +412,12 @@ void MyGLWidget::creaBuffersTerra() {
   Vertices[5] = glm::vec3(2.5, 0.0, 2.5);
 
   glm::vec3 Colors[6];
-  Colors[0] = glm::vec3(1.0, -1.0, 1.0);
-  Colors[1] = glm::vec3(1.0, -1.0, 1.0);
-  Colors[2] = glm::vec3(1.0, -1.0, 1.0);
-  Colors[3] = glm::vec3(1.0, -1.0, 1.0);
-  Colors[4] = glm::vec3(1.0, -1.0, 1.0);
-  Colors[5] = glm::vec3(1.0, -1.0, 1.0);
+  Colors[0] = glm::vec3(redTerraColorValue, greenTerraColorValue, blueTerraColorValue);
+  Colors[1] = glm::vec3(redTerraColorValue, greenTerraColorValue, blueTerraColorValue);
+  Colors[2] = glm::vec3(redTerraColorValue, greenTerraColorValue, blueTerraColorValue);
+  Colors[3] = glm::vec3(redTerraColorValue, greenTerraColorValue, blueTerraColorValue);
+  Colors[4] = glm::vec3(redTerraColorValue, greenTerraColorValue, blueTerraColorValue);
+  Colors[5] = glm::vec3(redTerraColorValue, greenTerraColorValue, blueTerraColorValue);
 
   glGenVertexArrays(1, &VAO_Terra);
   glBindVertexArray(VAO_Terra);

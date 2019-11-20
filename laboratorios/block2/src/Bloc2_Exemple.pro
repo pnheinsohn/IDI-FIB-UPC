@@ -6,8 +6,8 @@ INCLUDEPATH +=  /usr/include/glm \
 
 FORMS += MyForm.ui
 
-HEADERS += MyForm.h MyGLWidget.h
+HEADERS += MyForm.h MyGLWidget.h MyLabel.h
 
 SOURCES += main.cpp MyForm.cpp \
-        MyGLWidget.cpp \
+        MyGLWidget.cpp MyLabel.cpp \ 
         model/model.cpp
