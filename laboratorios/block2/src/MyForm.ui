@@ -22,6 +22,32 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>5</x>
+        <y>6</y>
+        <width>731</width>
+        <height>671</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QSlider" name="verticalSlider">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="horizontalSlider">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
