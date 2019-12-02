@@ -4,7 +4,7 @@
 Q1: 2019 - 2020
 
 ## Objetivo
-Compartir las tareas y ejercicios de laboratorio
+Compartir las tareas y ejercicios de laboratorio para futuras generaciones
 
 ## Alumno
 Paul Heinsohn, pnheinsohn@uc.cl
