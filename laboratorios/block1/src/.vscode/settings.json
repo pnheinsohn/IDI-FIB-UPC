@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "*.frag": "cpp",
-        "qopenglshaderprogram": "cpp",
-        "qopenglfunctions_3_3_core": "cpp"
-    }
-}
